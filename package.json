@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "NODE_ENV=production node ./bin/www",
     "start": "NODE_ENV=development node ./bin/www",
+    "build": "",
     "dev": "DEBUG=server:debug NODE_ENV=development nodemon ./bin/www --exec babel-node"
   },
   "dependencies": {
