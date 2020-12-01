@@ -1,11 +1,11 @@
 {
-  "name": "template",
+  "name": "line-sample-development",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "serve": "NODE_ENV=production node ./bin/www",
     "start": "NODE_ENV=development node ./bin/www",
-    "build": "babel src -d dist --source-maps",
+    "build": "NODE_ENV=production node ./bin/www",
     "dev": "DEBUG=server:debug NODE_ENV=development nodemon ./bin/www --exec babel-node"
   },
   "dependencies": {
