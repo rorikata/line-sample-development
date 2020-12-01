@@ -9,6 +9,8 @@ const config = {
   channelSecret: '1dd6452da22685b6fcc8949157600b51',
 };
 
+const client = new line.Client(config);
+
 router.post('/callback', line.middleware(config), apiService.test);
 
 module.exports = router;
