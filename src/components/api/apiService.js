@@ -7,17 +7,6 @@ const config = {
 
 const client = new line.Client(config);
 
-async function test(req, res, next) {
-  Promise
-    .all(req.body.events.map(handleEvent))
-    .then(result => res.json(result))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).end();
-    });
-  res.json();
-}
-
 function handleEvent(event) {
   if (event.type !== 'message' || event.message.type !== 'text') {
     // ignore non-text-message event
@@ -29,6 +18,19 @@ function handleEvent(event) {
 
   // use reply API
   return client.replyMessage(event.replyToken, echo);
+}
+
+async function test(req, res, next) {
+  Promise
+    .all(req.body.events.map(handleEvent))
+    .then((result) => {
+      console.log(result);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      next(err);
+    });
 }
 
 module.exports = {
