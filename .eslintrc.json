@@ -1,0 +1,27 @@
+{
+    "env": {
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "experimentalObjectRestSpread": true
+    },
+    "plugins": ["prettier"],
+    "rules": {
+        "no-underscore-dangle": ["error", { "allow": ["_contentLength"] }],
+        "no-unused-expressions": ["error", { "allowTernary": true }],
+        "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["file", "response", "req", "files"] }],
+        "prefer-destructuring": ["error", {"object": false, "array": false}],
+        "one-var": ["error", "never"],
+        "no-restricted-globals": ["error", "isNaN"]
+    }
+}
