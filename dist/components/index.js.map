@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/components/index.js"],"names":["registerRoutes","require","module","exports"],"mappings":"AAAA,MAAMA,iBAAiBC,QAAQ,kBAAR,CAAvB;;AAEAC,OAAOC,OAAP,GAAiB;AACfH;AADe,CAAjB","file":"index.js","sourcesContent":["const registerRoutes = require('./registerRoutes');\n\nmodule.exports = {\n  registerRoutes,\n};\n"]}
