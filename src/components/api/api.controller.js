@@ -1,8 +1,8 @@
 const express = require('express');
-const apiService = require('./apiService');
+const service = require('./api.service');
 
 const router = express.Router();
 
-router.post('/callback', apiService.test);
+router.post('/callback', service.test);
 
 module.exports = router;
