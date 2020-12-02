@@ -1,12 +1,15 @@
 const line = require('@line/bot-sdk');
 const Boom = require('@hapi/boom');
-const util = require('./api.util');
+const path = require('path');
+const fs = require('fs');
+const cp = require('child_process');
 
 const config = {
   channelAccessToken: 'Lbe26SFZwSbi9w2li0+H3hH0RRtWvBnOXlmCqftsw8uwTzOLMrN+GQi/vVlHdLmJ1qr3vhkXZZ+GyD29kqRWCElPk+s0k8bA1xqzh+mF25dvPTDl177mZ4qUDPSg2T64Oqo2cFB4urHm7Dz1j+3zTwdB04t89/1O/w1cDnyilFU=',
   channelSecret: '1dd6452da22685b6fcc8949157600b51',
 };
 const baseURL = 'https://pure-citadel-71095.herokuapp.com';
+const buttonsImageURL = `${baseURL}/static/buttons/1040.jpg`;
 
 const client = new line.Client(config);
 
@@ -46,8 +49,27 @@ function handleEvent(event) {
       }
 
     case 'follow':
-      return replyText(event.replyToken, 'Got followed event');
-
+      return client.replyMessage(
+        event.replyToken,
+        {
+          type: 'template',
+          altText: 'Buttons alt text',
+          template: {
+            type: 'buttons',
+            thumbnailImageUrl: buttonsImageURL,
+            title: 'My button sample',
+            text: 'Hello, my button',
+            actions: [
+              { label: 'Go to line.me', type: 'uri', uri: 'https://line.me' },
+              { label: 'Say hello1', type: 'postback', data: 'hello こんにちは' },
+              {
+                label: '言 hello2', type: 'postback', data: 'hello こんにちは', text: 'hello こんにちは',
+              },
+              { label: 'Say message', type: 'message', text: 'Rice=米' },
+            ],
+          },
+        },
+      );
     case 'unfollow':
       return console.log(`Unfollowed this bot: ${JSON.stringify(event)}`);
 
@@ -73,8 +95,6 @@ function handleEvent(event) {
 }
 
 function handleText(message, replyToken, source) {
-  const buttonsImageURL = `${baseURL}/static/buttons/1040.jpg`;
-
   switch (message.text) {
     case 'profile':
       if (source.userId) {
