@@ -4,435 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const cp = require('child_process');
 
-const config = {
-  channelAccessToken: 'Lbe26SFZwSbi9w2li0+H3hH0RRtWvBnOXlmCqftsw8uwTzOLMrN+GQi/vVlHdLmJ1qr3vhkXZZ+GyD29kqRWCElPk+s0k8bA1xqzh+mF25dvPTDl177mZ4qUDPSg2T64Oqo2cFB4urHm7Dz1j+3zTwdB04t89/1O/w1cDnyilFU=',
-  channelSecret: '1dd6452da22685b6fcc8949157600b51',
-};
-const baseURL = 'https://pure-citadel-71095.herokuapp.com';
-const buttonsImageURL = `${baseURL}/static/buttons/1040.jpg`;
-
-const client = new line.Client(config);
-
-// simple reply function
-const replyText = (token, texts) => {
-  texts = Array.isArray(texts) ? texts : [texts];
-  return client.replyMessage(
-    token,
-    texts.map(text => ({ type: 'text', text })),
-  );
-};
-
-// callback function to handle a single event
-function handleEvent(event) {
-  if (event.replyToken && event.replyToken.match(/^(.)\1*$/)) {
-    return console.log(`Test hook recieved: ${JSON.stringify(event.message)}`);
-  }
-
-  switch (event.type) {
-    case 'message':
-      const message = event.message;
-      switch (message.type) {
-        case 'text':
-          return handleText(message, event.replyToken, event.source);
-        case 'image':
-          return handleImage(message, event.replyToken);
-        case 'video':
-          return handleVideo(message, event.replyToken);
-        case 'audio':
-          return handleAudio(message, event.replyToken);
-        case 'location':
-          return handleLocation(message, event.replyToken);
-        case 'sticker':
-          return handleSticker(message, event.replyToken);
-        default:
-          throw new Error(`Unknown message: ${JSON.stringify(message)}`);
-      }
-
-    case 'follow':
-      return client.replyMessage(
-        event.replyToken,
-        {
-          type: 'template',
-          altText: 'Buttons alt text',
-          template: {
-            type: 'buttons',
-            thumbnailImageUrl: buttonsImageURL,
-            title: 'My button sample',
-            text: 'Hello, my button',
-            actions: [
-              { label: 'Go to line.me', type: 'uri', uri: 'https://line.me' },
-              { label: 'Say hello1', type: 'postback', data: 'hello こんにちは' },
-              {
-                label: '言 hello2', type: 'postback', data: 'hello こんにちは', text: 'hello こんにちは',
-              },
-              { label: 'Say message', type: 'message', text: 'Rice=米' },
-            ],
-          },
-        },
-      );
-    case 'unfollow':
-      return console.log(`Unfollowed this bot: ${JSON.stringify(event)}`);
-
-    case 'join':
-      return replyText(event.replyToken, `Joined ${event.source.type}`);
-
-    case 'leave':
-      return console.log(`Left: ${JSON.stringify(event)}`);
-
-    case 'postback':
-      let data = event.postback.data;
-      if (data === 'DATE' || data === 'TIME' || data === 'DATETIME') {
-        data += `(${JSON.stringify(event.postback.params)})`;
-      }
-      return replyText(event.replyToken, `Got postback: ${data}`);
-
-    case 'beacon':
-      return replyText(event.replyToken, `Got beacon: ${event.beacon.hwid}`);
-
-    default:
-      throw new Error(`Unknown event: ${JSON.stringify(event)}`);
-  }
-}
-
-function handleText(message, replyToken, source) {
-  switch (message.text) {
-    case 'profile':
-      if (source.userId) {
-        return client.getProfile(source.userId)
-          .then(profile => replyText(
-            replyToken,
-            [
-              `Display name: ${profile.displayName}`,
-              `Status message: ${profile.statusMessage}`,
-            ],
-          ));
-      }
-      return replyText(replyToken, 'Bot can\'t use profile API without user ID');
-
-    case 'buttons':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'template',
-          altText: 'Buttons alt text',
-          template: {
-            type: 'buttons',
-            thumbnailImageUrl: buttonsImageURL,
-            title: 'My button sample',
-            text: 'Hello, my button',
-            actions: [
-              { label: 'Go to line.me', type: 'uri', uri: 'https://line.me' },
-              { label: 'Say hello1', type: 'postback', data: 'hello こんにちは' },
-              {
-                label: '言 hello2', type: 'postback', data: 'hello こんにちは', text: 'hello こんにちは',
-              },
-              { label: 'Say message', type: 'message', text: 'Rice=米' },
-            ],
-          },
-        },
-      );
-    case 'confirm':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'template',
-          altText: 'Confirm alt text',
-          template: {
-            type: 'confirm',
-            text: 'Do it?',
-            actions: [
-              { label: 'Yes', type: 'message', text: 'Yes!' },
-              { label: 'No', type: 'message', text: 'No!' },
-            ],
-          },
-        },
-      );
-    case 'carousel':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'template',
-          altText: 'Carousel alt text',
-          template: {
-            type: 'carousel',
-            columns: [
-              {
-                thumbnailImageUrl: buttonsImageURL,
-                title: 'hoge',
-                text: 'fuga',
-                actions: [
-                  { label: 'Go to line.me', type: 'uri', uri: 'https://line.me' },
-                  { label: 'Say hello1', type: 'postback', data: 'hello こんにちは' },
-                ],
-              },
-              {
-                thumbnailImageUrl: buttonsImageURL,
-                title: 'hoge',
-                text: 'fuga',
-                actions: [
-                  {
-                    label: '言 hello2', type: 'postback', data: 'hello こんにちは', text: 'hello こんにちは',
-                  },
-                  { label: 'Say message', type: 'message', text: 'Rice=米' },
-                ],
-              },
-            ],
-          },
-        },
-      );
-    case 'image carousel':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'template',
-          altText: 'Image carousel alt text',
-          template: {
-            type: 'image_carousel',
-            columns: [
-              {
-                imageUrl: buttonsImageURL,
-                action: { label: 'Go to LINE', type: 'uri', uri: 'https://line.me' },
-              },
-              {
-                imageUrl: buttonsImageURL,
-                action: { label: 'Say hello1', type: 'postback', data: 'hello こんにちは' },
-              },
-              {
-                imageUrl: buttonsImageURL,
-                action: { label: 'Say message', type: 'message', text: 'Rice=米' },
-              },
-              {
-                imageUrl: buttonsImageURL,
-                action: {
-                  label: 'datetime',
-                  type: 'datetimepicker',
-                  data: 'DATETIME',
-                  mode: 'datetime',
-                },
-              },
-            ],
-          },
-        },
-      );
-    case 'datetime':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'template',
-          altText: 'Datetime pickers alt text',
-          template: {
-            type: 'buttons',
-            text: 'Select date / time !',
-            actions: [
-              {
-                type: 'datetimepicker', label: 'date', data: 'DATE', mode: 'date',
-              },
-              {
-                type: 'datetimepicker', label: 'time', data: 'TIME', mode: 'time',
-              },
-              {
-                type: 'datetimepicker', label: 'datetime', data: 'DATETIME', mode: 'datetime',
-              },
-            ],
-          },
-        },
-      );
-    case 'imagemap':
-      return client.replyMessage(
-        replyToken,
-        {
-          type: 'imagemap',
-          baseUrl: `${baseURL}/static/rich`,
-          altText: 'Imagemap alt text',
-          baseSize: { width: 1040, height: 1040 },
-          actions: [
-            {
-              area: {
-                x: 0, y: 0, width: 520, height: 520,
-              },
-              type: 'uri',
-              linkUri: 'https://store.line.me/family/manga/en',
-            },
-            {
-              area: {
-                x: 520, y: 0, width: 520, height: 520,
-              },
-              type: 'uri',
-              linkUri: 'https://store.line.me/family/music/en',
-            },
-            {
-              area: {
-                x: 0, y: 520, width: 520, height: 520,
-              },
-              type: 'uri',
-              linkUri: 'https://store.line.me/family/play/en',
-            },
-            {
-              area: {
-                x: 520, y: 520, width: 520, height: 520,
-              },
-              type: 'message',
-              text: 'URANAI!',
-            },
-          ],
-          video: {
-            originalContentUrl: `${baseURL}/static/imagemap/video.mp4`,
-            previewImageUrl: `${baseURL}/static/imagemap/preview.jpg`,
-            area: {
-              x: 280,
-              y: 385,
-              width: 480,
-              height: 270,
-            },
-            externalLink: {
-              linkUri: 'https://line.me',
-              label: 'LINE',
-            },
-          },
-        },
-      );
-    case 'bye':
-      switch (source.type) {
-        case 'user':
-          return replyText(replyToken, 'Bot can\'t leave from 1:1 chat');
-        case 'group':
-          return replyText(replyToken, 'Leaving group')
-            .then(() => client.leaveGroup(source.groupId));
-        case 'room':
-          return replyText(replyToken, 'Leaving room')
-            .then(() => client.leaveRoom(source.roomId));
-        default:
-          console.log(`Echo message to ${replyToken}: ${message.text}`);
-          return replyText(replyToken, message.text);
-      }
-    default:
-      console.log(`Echo message to ${replyToken}: ${message.text}`);
-      return replyText(replyToken, message.text);
-  }
-}
-
-function handleImage(message, replyToken) {
-  let getContent;
-  if (message.contentProvider.type === 'line') {
-    const downloadPath = path.join(__dirname, 'downloaded', `${message.id}.jpg`);
-    const previewPath = path.join(__dirname, 'downloaded', `${message.id}-preview.jpg`);
-
-    getContent = downloadContent(message.id, downloadPath)
-      .then((downloadPath) => {
-        // ImageMagick is needed here to run 'convert'
-        // Please consider about security and performance by yourself
-        cp.execSync(`convert -resize 240x jpeg:${downloadPath} jpeg:${previewPath}`);
-
-        return {
-          originalContentUrl: `${baseURL}/downloaded/${path.basename(downloadPath)}`,
-          previewImageUrl: `${baseURL}/downloaded/${path.basename(previewPath)}`,
-        };
-      });
-  } else if (message.contentProvider.type === 'external') {
-    getContent = Promise.resolve(message.contentProvider);
-  }
-
-  return getContent
-    .then(({ originalContentUrl, previewImageUrl }) => client.replyMessage(
-      replyToken,
-      {
-        type: 'image',
-        originalContentUrl,
-        previewImageUrl,
-      },
-    ));
-}
-
-function handleVideo(message, replyToken) {
-  let getContent;
-  if (message.contentProvider.type === 'line') {
-    const downloadPath = path.join(__dirname, 'downloaded', `${message.id}.mp4`);
-    const previewPath = path.join(__dirname, 'downloaded', `${message.id}-preview.jpg`);
-
-    getContent = downloadContent(message.id, downloadPath)
-      .then((downloadPath) => {
-        // FFmpeg and ImageMagick is needed here to run 'convert'
-        // Please consider about security and performance by yourself
-        cp.execSync(`convert mp4:${downloadPath}[0] jpeg:${previewPath}`);
-
-        return {
-          originalContentUrl: `${baseURL}/downloaded/${path.basename(downloadPath)}`,
-          previewImageUrl: `${baseURL}/downloaded/${path.basename(previewPath)}`,
-        };
-      });
-  } else if (message.contentProvider.type === 'external') {
-    getContent = Promise.resolve(message.contentProvider);
-  }
-
-  return getContent
-    .then(({ originalContentUrl, previewImageUrl }) => client.replyMessage(
-      replyToken,
-      {
-        type: 'video',
-        originalContentUrl,
-        previewImageUrl,
-      },
-    ));
-}
-
-function handleAudio(message, replyToken) {
-  let getContent;
-  if (message.contentProvider.type === 'line') {
-    const downloadPath = path.join(__dirname, 'downloaded', `${message.id}.m4a`);
-
-    getContent = downloadContent(message.id, downloadPath)
-      .then(downloadPath => ({
-        originalContentUrl: `${baseURL}/downloaded/${path.basename(downloadPath)}`,
-      }));
-  } else {
-    getContent = Promise.resolve(message.contentProvider);
-  }
-
-  return getContent
-    .then(({ originalContentUrl }) => client.replyMessage(
-      replyToken,
-      {
-        type: 'audio',
-        originalContentUrl,
-        duration: message.duration,
-      },
-    ));
-}
-
-function downloadContent(messageId, downloadPath) {
-  return client.getMessageContent(messageId)
-    .then(stream => new Promise((resolve, reject) => {
-      const writable = fs.createWriteStream(downloadPath);
-      stream.pipe(writable);
-      stream.on('end', () => resolve(downloadPath));
-      stream.on('error', reject);
-    }));
-}
-
-function handleLocation(message, replyToken) {
-  return client.replyMessage(
-    replyToken,
-    {
-      type: 'location',
-      title: message.title,
-      address: message.address,
-      latitude: message.latitude,
-      longitude: message.longitude,
-    },
-  );
-}
-
-function handleSticker(message, replyToken) {
-  return client.replyMessage(
-    replyToken,
-    {
-      type: 'sticker',
-      packageId: message.packageId,
-      stickerId: message.stickerId,
-    },
-  );
-}
-
 async function test(req, res, next) {
   // webhook callback
   if (req.body.destination) {
@@ -453,6 +24,139 @@ async function test(req, res, next) {
     });
 }
 
+async function rich(req, res, next) {
+  const richmenu = {
+    size: {
+      width: 2500,
+      height: 1686,
+    },
+    selected: false,
+    name: 'Rei',
+    chatBarText: 'メニュー',
+    areas: [
+      {
+        bounds: {
+          x: 50,
+          y: 50,
+          width: 1400,
+          height: 450,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '左上',
+        },
+      },
+      {
+        bounds: {
+          x: 50,
+          y: 550,
+          width: 1400,
+          height: 450,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '左中央',
+        },
+      },
+      {
+        bounds: {
+          x: 50,
+          y: 1050,
+          width: 1400,
+          height: 450,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '左下',
+        },
+      },
+      {
+        bounds: {
+          x: 50,
+          y: 1550,
+          width: 1400,
+          height: 100,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '左最下',
+        },
+      },
+      {
+        bounds: {
+          x: 1525,
+          y: 50,
+          width: 900,
+          height: 500,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '右上',
+        },
+      },
+      {
+        bounds: {
+          x: 1525,
+          y: 600,
+          width: 900,
+          height: 500,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '右中央',
+        },
+      },
+      {
+        bounds: {
+          x: 1525,
+          y: 1150,
+          width: 900,
+          height: 500,
+        },
+        action: {
+          type: 'message',
+          label: 'button',
+          text: '右下',
+        },
+      },
+    ],
+  };
+  client.createRichMenu(richmenu)
+    .then((richMenuId) => {
+      console.log(richMenuId);
+      res.json(richMenuId);
+    })
+    .catch((err) => {
+      next(Boom.badRequest('Error at create rich menu', err));
+    });
+}
+
+async function setDefaultRichMenu(req, res, next) {
+  const { richMenuId } = req.body;
+  await client.setDefaultRichMenu(richMenuId);
+  res.json();
+}
+
+async function uploadRichmenuImage(req, res, next) {
+  const { richMenuId } = req.body;
+  const image = path.join(__dirname, '../../../public/images/', 'richmenu.jpg');
+  try {
+    await client.setRichMenuImage(richMenuId, fs.createReadStream(image));
+    res.json();
+  } catch (err) {
+    next(Boom.badImplementation('Something wrong.', err));
+  }
+}
+
 module.exports = {
   test,
+  rich,
+  setDefaultRichMenu,
+  uploadRichmenuImage,
 };

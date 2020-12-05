@@ -1,35 +1,103 @@
-{
-  "type": "template",
-  "altText": "This is a buttons template",
-  "template": {
-      "type": "buttons",
-      "thumbnailImageUrl": "https://example.com/bot/images/image.jpg",
-      "imageAspectRatio": "rectangle",
-      "imageSize": "cover",
-      "imageBackgroundColor": "#FFFFFF",
-      "title": "Menu",
-      "text": "Please select",
-      "defaultAction": {
-          "type": "uri",
-          "label": "View detail",
-          "uri": "http://example.com/page/123"
-      },
-      "actions": [
-          {
-            "type": "postback",
-            "label": "Buy",
-            "data": "action=buy&itemid=123"
+curl -v -X POST https://api.line.me/v2/bot/richmenu \
+-H 'Authorization: Bearer Lbe26SFZwSbi9w2li0+H3hH0RRtWvBnOXlmCqftsw8uwTzOLMrN+GQi/vVlHdLmJ1qr3vhkXZZ+GyD29kqRWCElPk+s0k8bA1xqzh+mF25dvPTDl177mZ4qUDPSg2T64Oqo2cFB4urHm7Dz1j+3zTwdB04t89/1O/w1cDnyilFU=' \
+-H 'Content-Type: application/json' \
+-d \
+'{
+  "size":{
+      "width":2500,
+      "height":1686
+  },
+  "selected": false,
+  "name": "LINE Developers Info",
+  "chatBarText": "Tap to open",
+  "areas": [
+      {
+          "bounds": {
+              "x": 50,
+              "y": 50,
+              "width": 1400,
+              "height": 450
           },
-          {
-            "type": "postback",
-            "label": "Add to cart",
-            "data": "action=add&itemid=123"
-          },
-          {
-            "type": "uri",
-            "label": "View detail",
-            "uri": "http://example.com/page/123"
+          "action": {
+              "type": "uri",
+              "uri": "https://developers.line.biz/en/news/"
           }
-      ]
-  }
-}
+      },
+      {
+          "bounds": {
+              "x": 50,
+              "y": 550,
+              "width": 1400,
+              "height": 450
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://www.line-community.me/"
+          }
+      },
+      {
+          "bounds": {
+              "x": 50,
+              "y": 1050,
+              "width": 1400,
+              "height": 450
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://engineering.linecorp.com/en/blog/"
+          }
+      },
+      {
+          "bounds": {
+              "x": 50,
+              "y": 1550,
+              "width": 1400,
+              "height": 100
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://engineering.linecorp.com/en/blog/"
+          }
+      },
+      {
+          "bounds": {
+              "x": 1525,
+              "y": 50,
+              "width": 900,
+              "height": 500
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://engineering.linecorp.com/en/blog/"
+          }
+      },
+      {
+          "bounds": {
+              "x": 1525,
+              "y": 600,
+              "width": 900,
+              "height": 500
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://engineering.linecorp.com/en/blog/"
+          }
+      },
+      {
+          "bounds": {
+              "x": 1525,
+              "y": 1150,
+              "width": 900,
+              "height": 500
+          },
+          "action": {
+              "type": "uri",
+              "uri": "https://engineering.linecorp.com/en/blog/"
+          }
+      },
+  ]
+}'
+
+
+
+richmenu-f357c2d6148149481cadb191db7dff65
